@@ -1,0 +1,54 @@
+name: Upstream Sync
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+on:
+  # schedule:
+  #   - cron: '0 0 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  sync_latest_from_upstream:
+    name: Sync latest commits from upstream repo
+    runs-on: ubuntu-latest
+    if: ${{ github.event.repository.fork }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Clean issue notice
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'close-issues'
+          labels: '🚨 Sync Fail'
+
+      - name: Sync upstream changes
+        id: sync
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+        with:
+          # 修改 1: 上游仓库地址改为 Umami
+          upstream_sync_repo: umami-software/umami
+          # 修改 2: Umami 的默认分支通常是 master，请确保这里与上游一致
+          upstream_sync_branch: master
+          # 修改 3: 你的本地分支，通常也是 master，如果是 main 请自行修改
+          target_sync_branch: master
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }} # 自动生成，无需设置
+          test_mode: false
+
+      - name: Sync check
+        if: failure()
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'create-issue'
+          title: '🚨 同步失败 | Sync Fail'
+          labels: '🚨 Sync Fail'
+          # 修改 4: 更新报错文案和链接
+          body: |
+            Due to a change in the workflow file of the [Umami][umami] upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.
+
+            由于 [Umami][umami] 上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，你需要手动 Sync Fork 一次。
+
+            [umami]: https://github.com/umami-software/umami
