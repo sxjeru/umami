@@ -224,7 +224,6 @@ export default withNextIntl({
   typescript: {
     ignoreBuildErrors: true,
   },
-  devIndicators: false,
   experimental: {
     useTypeScriptCli: true,
     // 强制将 ca.pem 包含在 Serverless 函数的构建产物中
