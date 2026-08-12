@@ -230,7 +230,8 @@ export default withNextIntl({
     // 强制将 ca.pem 包含在 Serverless 函数的构建产物中
     outputFileTracingIncludes: {
       '/api/**/*': ['./ca.pem'], // 确保 API 路由能访问
-      '/**/*': ['./ca.pem'],     // 确保其他页面也能访问
+      '/**/*': ['./ca.pem'], // 确保其他页面也能访问
+    },
   },
   async headers() {
     return headers;
